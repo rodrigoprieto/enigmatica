@@ -157,7 +157,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 app = ApplicationBuilder().token(config.telegram_token).build()
 # Start commands & help
 app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("help", help))
+app.add_handler(CommandHandler("ayuda", help))
 app.add_handler(CommandHandler("enigma", enigma))
 # Crea el manejador de la conversación y añade los estados
 conv_handler = ConversationHandler(

@@ -15,3 +15,5 @@ telegram_bot_name = ""  # Optional
 # User data
 user_data = join(data_path, 'users_data.db')
 
+# Enigmas
+enigmas_data = join(data_path, 'enigmas.csv')
