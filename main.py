@@ -95,10 +95,24 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
 
 async def enigma(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    id, enig = enigmas_db.get_random_enigma()
+    user_id = update.message.from_user.id
+    enigmas_solved_by_user = user_db.get_enigmas_solved_by_user(user_id)
+    id, enig = enigmas_db.get_random_enigma(enigmas_solved_by_user)
+    if id is False:
+        await update.message.reply_text(
+            'Felicidades! 🎉 Has resuelto todos los enigmas. Si quieres recomenzar, escribe /reiniciar.',
+            parse_mode="Markdown")
+        return
     await update.message.reply_text(f'*Enigma #{id} ~ {enig["titulo"]}*\n\n{enig["descripcion"]}\n\n'
                                     '👉 Cuando quieras conocer la respuesta podrás consultar /respuesta.',
                                     parse_mode="Markdown")
+
+
+async def restart(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user_id = update.message.from_user.id
+    user_db.reset_enigmas_by_user(user_id)
+    await update.message.reply_text('🔄 Hecho! Tus progresos con los enigmas han sido reiniciados. '
+                                    'Cuando quieras comenzar de nuevo, escribe /enigma.', parse_mode="Markdown")
 
 
 async def respuesta(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -119,6 +133,7 @@ async def enigma_response(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         return ConversationHandler.END
 
     enigma_id = int(enigma_id_str)
+    user_id = update.message.from_user.id
 
     # Leemos de la Base de datos de enigmas
     enig = enigmas_db.get_enigma(enigma_id)
@@ -126,6 +141,9 @@ async def enigma_response(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     if enig is None:
         await update.message.reply_text(f'Lo siento, no pude encontrar el enigma #{enigma_id}. Intenta de nuevo.')
         return ENIGMA
+
+    # Guardamos que el usuario ya resolvio el enigma. Para en futuros enigmas no darle los mismos una y otra vez
+    user_db.save_solved_enigma(user_id, enigma_id)
 
     # Aquí tendrías que implementar el método de tu base de datos que busca el enigma.
     await update.message.reply_text(f'La respuesta al *Enigma #{enigma_id} ~ {enig["titulo"]}* '
@@ -144,6 +162,7 @@ async def final(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         message = random.choice(success_messages)  # Elegir un mensaje de éxito al azar
     else:
         message = random.choice(encouragement_messages)  # Elegir un mensaje de aliento al azar
+
     await query.edit_message_text(message)
     await query.message.reply_text(random.choice(encouraging_messages), parse_mode="Markdown")
     return ConversationHandler.END
@@ -159,6 +178,7 @@ app = ApplicationBuilder().token(config.telegram_token).build()
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("ayuda", help))
 app.add_handler(CommandHandler("enigma", enigma))
+app.add_handler(CommandHandler("reiniciar", restart))
 # Crea el manejador de la conversación y añade los estados
 conv_handler = ConversationHandler(
     entry_points=[CommandHandler('respuesta', respuesta)],

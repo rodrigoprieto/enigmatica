@@ -9,6 +9,11 @@ class EnigmasDatabase:
             return None
         return self.df.loc[enigma_id].to_dict()
 
-    def get_random_enigma(self):
-        random = self.df.sample(1)
-        return random.index.values[0], random.iloc[0].to_dict()
+    def get_random_enigma(self, enigmas_solved_by_user):
+        # Create a new DataFrame that does not include enigmas solved by the user.
+        new_df = self.df.drop(enigmas_solved_by_user, errors='ignore')
+        if new_df.empty:  # If there are no more enigmas to solve, return False
+            return False, {}
+        else:
+            random = new_df.sample(1)
+            return random.index.values[0], random.iloc[0].to_dict()
