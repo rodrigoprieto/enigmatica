@@ -62,3 +62,10 @@ Ahora, tu bot de Telegram debería estar funcionando. Puedes buscar el nombre de
 ---
 
 Este archivo README proporciona una guía paso a paso para instalar y configurar tu bot de enigmas matemáticos. Espero que te resulte útil.
+
+## Agradecimientos
+Me gustaria agradecer mucho a mi abuela Erika que me siempre buscó incentivarme con éste tipo de enigmas y ejercicios para la mente desde que yo era chico. 
+
+Luego, la mayoría de los ejercicios de éste juego fueron extraídos del libro ENIGMÁTICA del autor Lluís Segarra. Mis agradecimientos a él y a su equipo.
+
+
